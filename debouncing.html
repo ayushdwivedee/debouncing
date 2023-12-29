@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debouncing</title>
+    <style>
+body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #search-bar {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+        }
+        #movie-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .movie-card {
+            border: 1px solid #d81212;
+            margin: 10px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="text" id="search-bar" placeholder="Search your favourite movie name">
+    </div>
+    <div id="movie-container"></div>
+</body>
+</html>
+<script>
+    const apiKey="6841b58";
+    const baseUrl="https://www.omdbapi.com/";
+    let searchInput=document.getElementById("search-bar");
+    let movieContainer=document.getElementById("movie-container");
+
+    let debounceTimerId;
+    searchInput.addEventListener("input",()=>{
+        clearTimeout(debounceTimerId);
+        debounceTimerId=setTimeout(() =>{
+            let searchTerm=searchInput.value;
+            if(searchTerm  !== ""){
+                searchMovies(searchTerm)
+            }
+        },800);
+    });
+
+    function searchMovies(query){
+    const apiUrl=`${baseUrl}?apikey=${apiKey}&t=${query}`;
+        fetch(apiUrl)
+        .then((res)=>res.json())
+        .then((data)=>{
+             
+            // displayMovies(data)
+            if(data){
+                displayMovies(data);
+            }
+            else if(data){
+                movieContainer.innerHTML = '<p>No results found</p>'; 
+            }
+        })
+        .catch((err)=>{
+            console.error("Error in getting the movie you want , try again later !",err)
+            movieContainer.innerHTML="<p>An error occurred. Please try again later.</p>"
+        });
+    }
+    function displayMovies(movie){
+        movieContainer.innerHTML="";
+
+        
+            let movieCard=document.createElement("div");
+            movieCard.classList.add("movie-card");
+
+             
+            movieCard.innerHTML = `
+                    <img src="${movie.Poster}" width=200px height=300px alt="${movie.Title}">
+                    <h3>${movie.Title}</h3>
+                    <p>${movie.Year}</p>
+                `;
+                movieContainer.appendChild(movieCard);
+            
+        
+    }
+</script>
