@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Throttling</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #search-bar {
+            padding: 10px;
+            font-size: 16px;
+        }
+        #recipes-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+             
+        }
+        .recipe-card {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+            width: auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="text" id="search-bar" placeholder="Search for a recipe...">
+    </div>
+    <div id="recipes-container"></div>
+
+</body>
+</html>
+<script>
+   
+    const baseUrl="https://www.themealdb.com/api/json/v1/1/search.php";
+    let searchInput=document.getElementById("search-bar");
+    let recipesContainer=document.getElementById("recipes-container");
+    let throttleTimerId=0;
+     
+    searchInput.addEventListener("input",() =>{
+        clearTimeout(throttleTimerId);
+
+        throttleTimerId=setTimeout(()=>{
+            const searchTerm=searchInput.value;
+            if(searchTerm !== ""){
+                searchRecipes(searchTerm);
+            }
+        },2000);
+    });
+
+    function searchRecipes(query){
+        const apiUrl=`${baseUrl}?s=${query}`;
+        fetch(apiUrl)
+        .then((res)=>res.json())
+        .then((data)=>{
+            if(data.meals){
+                displayRecipes(data.meals)
+            }else{
+                recipesContainer.innerHTML = '<p>No results found</p>'; 
+            }
+        }
+        
+        )
+        .catch((err)=>console.error("Wrong input , Try Again !",err));
+    }
+
+    function displayRecipes(recipes) {
+        recipesContainer.innerHTML = '';
+        recipes.forEach((recipe) =>{
+            const recipeCard=document.createElement("div");
+            recipeCard.classList.add("recipe-card");
+            recipeCard.innerHTML=`
+            <img src="${recipe.strMealThumb}" width=300px alt="${recipe.strMeal}">
+            <h3>${recipe.strMeal}</h3>  
+       `; 
+       recipesContainer.append(recipeCard)
+        });
+       
+    }
+</script>
